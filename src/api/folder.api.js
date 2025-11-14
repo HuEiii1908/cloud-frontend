@@ -1,22 +1,17 @@
 import axiosClient from "../services/axiosClient";
 
-const bucketName = "default";
-
 const folderAPI = {
-  create: (name) =>
-    axiosClient.post(`/objects/${bucketName}/create_folder/`, { name }),
+  create: (bucket, name) =>
+    axiosClient.post(`/objects/${bucket}/create_folder/`, { name }),
 
-  delete: (key) =>
-    axiosClient.delete(`/objects/${bucketName}/delete/`, { data: { key } }),
+  delete: (bucket, key) =>
+    axiosClient.delete(`/objects/${bucket}/delete/`, { data: { key } }),
 
-  rename: (oldKey, newKey) =>
-    axiosClient.post(`/objects/${bucketName}/rename_folder/`, {
+  rename: (bucket, oldKey, newKey) =>
+    axiosClient.post(`/objects/${bucket}/rename_folder/`, {
       old_key: oldKey,
       new_key: newKey,
     }),
-
-  restore: (key) =>
-    axiosClient.post(`/objects/${bucketName}/restore_folder/`, { key }),
 };
 
 export default folderAPI;

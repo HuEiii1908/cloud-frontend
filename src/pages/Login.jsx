@@ -5,16 +5,19 @@ import toast from "react-hot-toast";
 
 export default function Login() {
   const { login } = useContext(AuthContext);
-  const nav = useNavigate();
+  const navigate = useNavigate();
+
   const [form, setForm] = useState({ email: "", password: "" });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const success = login(form.email, form.password);
-    if (success) {
+    const ok = await login(form.email.trim(), form.password);
+    if (ok) {
       toast.success("Đăng nhập thành công!");
-      nav("/");
-    } else toast.error("Sai email hoặc mật khẩu!");
+      navigate("/"); // hoặc "/dashboard" tùy routes của bạn
+    } else {
+      // toast đã hiển thị trong login()
+    }
   };
 
   return (
@@ -26,23 +29,29 @@ export default function Login() {
         <h2 className="text-xl font-semibold text-center mb-4 dark:text-gray-100">
           Đăng nhập Drive
         </h2>
+
         <input
           type="email"
           placeholder="Email"
-          className="w-full mb-3 p-2 border rounded dark:bg-[#303134] dark:border-gray-600"
+          value={form.email}
           onChange={(e) => setForm({ ...form, email: e.target.value })}
+          className="w-full mb-3 p-2 border rounded dark:bg-[#303134] dark:border-gray-600"
           required
         />
+
         <input
           type="password"
           placeholder="Mật khẩu"
-          className="w-full mb-4 p-2 border rounded dark:bg-[#303134] dark:border-gray-600"
+          value={form.password}
           onChange={(e) => setForm({ ...form, password: e.target.value })}
+          className="w-full mb-4 p-2 border rounded dark:bg-[#303134] dark:border-gray-600"
           required
         />
+
         <button className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition">
           Đăng nhập
         </button>
+
         <p className="text-sm mt-3 text-center text-gray-500 dark:text-gray-400">
           Chưa có tài khoản?{" "}
           <Link to="/register" className="text-blue-500 hover:underline">

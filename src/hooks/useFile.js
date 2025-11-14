@@ -1,19 +1,14 @@
-import { useContext, useMemo } from "react";
+import { useContext } from "react";
 import { FileContext } from "../context/FileContext";
+import fileAPI from "../api/file.api";
 
-export default function useFile() {
+export function useFile() {
   const ctx = useContext(FileContext);
-  const currentPath = useMemo(() => ctx.path.join("/"), [ctx.path]);
 
-  const visibleFiles = useMemo(
-    () => ctx.files.filter(f => !f.deleted && f.path === currentPath),
-    [ctx.files, currentPath]
-  );
-
-  const trashFiles = useMemo(
-    () => ctx.files.filter(f => f.deleted),
-    [ctx.files]
-  );
-
-  return { ...ctx, currentPath, visibleFiles, trashFiles };
+  return {
+    ...ctx,
+    uploadFile: (file) => fileAPI.uploadFile(ctx.bucket, file),
+    uploadFolder: (files) => fileAPI.uploadFolder(ctx.bucket, files),
+    createFolder: (name) => fileAPI.createFolder(ctx.bucket, name),
+  };
 }

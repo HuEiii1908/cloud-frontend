@@ -1,17 +1,12 @@
-export default function Breadcrumb({ path, onNavigate }) {
+
+export default function Breadcrumb() {
   return (
-    <div className="text-sm text-gray-600 dark:text-gray-400 mb-3 flex items-center gap-1">
-      {path.map((p, i) => (
-        <span key={i} className="flex items-center gap-1">
-          <button
-            onClick={() => onNavigate(i)}
-            className="hover:underline hover:text-blue-500"
-          >
-            {p}
-          </button>
-          {i < path.length - 1 && <span>/</span>}
-        </span>
-      ))}
+    <div className="flex items-center gap-1 text-sm text-gray-600 mb-4">
+      <span className="hover:underline cursor-pointer">Drive của tôi</span>
+
+      {/* Subfolder (tạm thời cố định – version sau sẽ dynamic) */}
+      {/* <ChevronRight className="w-4 h-4" />
+      <span className="hover:underline cursor-pointer">Thư mục A</span> */}
     </div>
   );
 }

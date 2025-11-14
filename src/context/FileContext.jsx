@@ -1,108 +1,105 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect } from "react";
+import axiosClient from "../services/axiosClient";
 import fileAPI from "../api/file.api";
-import folderAPI from "../api/folder.api";
 
 export const FileContext = createContext();
-export const useFiles = () => useContext(FileContext);
 
 export default function FileProvider({ children }) {
+  const [bucket, setBucket] = useState(null);
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [currentFolder, setCurrentFolder] = useState("root");
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
 
-  const bucketName = "default";
+  // ================== Load bucket ==================
+  const loadBucket = async () => {
+    try {
+      const res = await axiosClient.get("/buckets/");
+      if (res.data.length > 0) {
+        setBucket(res.data[0].name);
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Không thể tải bucket");
+    }
+  };
 
-  // 📥 Load danh sách file
+  // ================== Fetch files ==================
   const fetchFiles = async () => {
+    if (!bucket) return;
+
     setLoading(true);
     try {
-      const res = await fileAPI.list(bucketName);
-      setFiles(res.data.objects || []); // Tùy cấu trúc backend
-      setError(null);
+      const res = await fileAPI.list(bucket); // ✔ CHUẨN
+      setFiles(res.data || []);
     } catch (err) {
-      console.error("Lỗi khi tải file:", err);
-      setError("Không thể tải danh sách file");
-    } finally {
-      setLoading(false);
+      console.error(err);
+      setError("Không thể tải danh sách tệp");
     }
+    setLoading(false);
   };
+
+  // ================== Upload file ==================
+  const uploadFile = async (file) => {
+    if (!bucket) return console.warn("Bucket chưa load – uploadFile bị bỏ qua");
+
+    await fileAPI.uploadFile(bucket, file);   // ✔ SỬA ĐÚNG TÊN
+    await fetchFiles();
+  };
+
+  // ================== Upload folder ==================
+  const uploadFolder = async (fileList) => {
+    if (!bucket) return console.warn("Bucket chưa load – uploadFolder bị bỏ qua");
+
+    await fileAPI.uploadFolder(bucket, fileList); // ✔ API CHUẨN
+    await fetchFiles();
+  };
+
+  // ================== Create folder ==================
+  const createFolder = async (name) => {
+    if (!bucket) return;
+
+    await fileAPI.createFolder(bucket, name); // ✔ API CHUẨN
+    await fetchFiles();
+  };
+
+  // ================== Delete file ==================
+  const deleteFile = async (key) => {
+    if (!bucket) return;
+    await fileAPI.delete(bucket, key);
+    await fetchFiles();
+  };
+
+  // ================== Rename file ==================
+  const renameFile = async (key, newName) => {
+    if (!bucket) return;
+    await fileAPI.rename(bucket, key, newName);
+    await fetchFiles();
+  };
+
+  // ================== INIT ==================
+  useEffect(() => {
+    loadBucket();
+  }, []);
 
   useEffect(() => {
-    fetchFiles();
-  }, [currentFolder]);
-
-  // 📤 Upload file
-  const uploadFile = async (file) => {
-    try {
-      await fileAPI.upload(file);
-      fetchFiles();
-    } catch (err) {
-      console.error("Upload thất bại:", err);
-      setError("Không thể tải lên file");
-    }
-  };
-
-  // 🗑️ Xóa file
-  const deleteFile = async (key) => {
-    try {
-      await fileAPI.delete(key);
-      setFiles((prev) => prev.filter((f) => f.key !== key));
-    } catch (err) {
-      console.error("Xóa file thất bại:", err);
-      setError("Không thể xóa file");
-    }
-  };
-
-  // ♻️ Khôi phục file
-  const restoreFile = async (key) => {
-    try {
-      await fileAPI.restore(key);
-      fetchFiles();
-    } catch (err) {
-      console.error("Khôi phục thất bại:", err);
-      setError("Không thể khôi phục file");
-    }
-  };
-
-  // ✏️ Đổi tên file
-  const renameFile = async (oldKey, newKey) => {
-    try {
-      await fileAPI.rename(oldKey, newKey);
-      fetchFiles();
-    } catch (err) {
-      console.error("Đổi tên thất bại:", err);
-      setError("Không thể đổi tên file");
-    }
-  };
-
-  // 📁 Tạo thư mục
-  const createFolder = async (name) => {
-    try {
-      await folderAPI.create(name);
-      fetchFiles();
-    } catch (err) {
-      console.error("Tạo thư mục thất bại:", err);
-      setError("Không thể tạo thư mục");
-    }
-  };
-
-  const value = {
-    files,
-    loading,
-    error,
-    currentFolder,
-    setCurrentFolder,
-    fetchFiles,
-    uploadFile,
-    deleteFile,
-    restoreFile,
-    renameFile,
-    createFolder,
-  };
+    if (bucket) fetchFiles();
+  }, [bucket]);
 
   return (
-    <FileContext.Provider value={value}>
+    <FileContext.Provider
+      value={{
+        bucket,
+        files,
+        loading,
+        error,
+        fetchFiles,
+        uploadFile,
+        uploadFolder,
+        createFolder,
+        deleteFile,
+        renameFile,
+      }}
+    >
       {children}
     </FileContext.Provider>
   );

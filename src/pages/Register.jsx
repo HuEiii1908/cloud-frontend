@@ -1,7 +1,7 @@
 import { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
-import { Mail, Lock, UserPlus } from "lucide-react";
+import { Mail, Lock, UserPlus, User } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function Register() {
@@ -9,6 +9,7 @@ export default function Register() {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
+    full_name: "",
     email: "",
     password: "",
     confirm: "",
@@ -33,13 +34,19 @@ export default function Register() {
       return;
     }
 
+    if (!form.full_name.trim()) {
+      toast.error("Vui lòng nhập họ và tên của bạn!");
+      return;
+    }
+
     try {
-      await register(form.email, form.password);
+      await register(form.email, form.password, form.full_name);
       toast.success("Đăng ký thành công!");
       navigate("/login");
     } catch (error) {
-      toast.error("Có lỗi xảy ra, vui lòng thử lại!");
+      toast.error(error.message);
     }
+
   };
 
   return (
@@ -53,6 +60,20 @@ export default function Register() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Full Name */}
+          <div className="relative">
+            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              name="full_name"
+              placeholder="Họ và tên của bạn"
+              value={form.full_name}
+              onChange={handleChange}
+              className="w-full pl-9 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 dark:bg-[#2b2b2b] dark:border-gray-600 dark:text-gray-200"
+              required
+            />
+          </div>
+
           {/* Email */}
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
