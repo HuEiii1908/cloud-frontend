@@ -1,70 +1,89 @@
-# Getting Started with Create React App
+# ☁️ Google Drive Clone (Frontend)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+**Google Drive Clone** là ứng dụng web mô phỏng giao diện và tính năng của Google Drive, được xây dựng bằng **ReactJS + TailwindCSS**.  
+Dự án hỗ trợ quản lý file/folder, upload, đổi tên, xóa, khôi phục, tìm kiếm, và hiển thị dạng lưới/danh sách — kết nối trực tiếp với backend API.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## 🚀 Demo (sẽ cập nhật sau khi deploy)
+🔗 **Link Demo:** *đang cập nhật...*
 
-### `npm start`
+---
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## 🧱 Công nghệ sử dụng
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+| Công nghệ | Mục đích |
+|------------|-----------|
+| ⚛️ **ReactJS (Vite / CRA)** | Xây dựng giao diện người dùng |
+| 💅 **TailwindCSS** | Thiết kế UI nhanh, responsive, dark/light mode |
+| 🔄 **Axios** | Gọi API backend (upload / list / delete file) |
+| 🧠 **Context API** | Quản lý trạng thái toàn cục (Auth, File) |
+| 🧩 **React Router v6** | Điều hướng trang (Login, Dashboard, Trash, Shared) |
+| 🗂️ **Lucide React** | Bộ icon hiện đại tương tự Google |
+| ⚙️ **Vercel / Netlify** | Triển khai frontend |
 
-### `npm test`
+---
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## ⚙️ Cấu trúc thư mục
 
-### `npm run build`
+src/
+├── api/ # Gọi API backend
+│ ├── auth.api.js
+│ ├── file.api.js
+│ ├── folder.api.js
+│ └── user.api.js
+│
+├── assets/ # Hình ảnh, icon, minh họa
+│
+├── components/ # Component tái sử dụng
+│ ├── common/
+│ ├── file/
+│ ├── folder/
+│ ├── layout/
+│ └── modal/
+│
+├── context/ # Context API (AuthContext, FileContext)
+├── hooks/ # Custom hooks (useAuth, useFile)
+├── pages/ # Các trang chính (Dashboard, Login, Register, Trash, Shared)
+├── routes/ # Cấu hình routing
+├── services/ # axiosClient, storage.service
+├── utils/ # formatDate, formatFileSize, mimeTypes
+└── App.js # Root component
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 💡 Các tính năng nổi bật
 
-### `npm run eject`
+- 🔐 **Xác thực người dùng**
+  - Đăng nhập, đăng ký (form chuẩn @gmail.com)
+  - Token lưu trong localStorage
+  - Bảo vệ route (ProtectedRoute)
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+- 🗂️ **Quản lý file/folder**
+  - Upload, xóa, đổi tên, tạo thư mục
+  - Khôi phục file đã xóa
+  - Duyệt file theo folder (path breadcrumb)
+  - Tìm kiếm realtime
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- 🖼️ **Giao diện người dùng**
+  - Giao diện giống **Google Drive**
+  - Dark/light theme (có thể mở rộng)
+  - Hai chế độ hiển thị: **Lưới** / **Danh sách**
+  - Modal rename / upload / preview cực mượt
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+- ⚡ **Hiệu năng**
+  - Code tách modular
+  - Gọi API qua `axiosClient` có interceptor
+  - Xử lý async/await mượt mà
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+---
 
-## Learn More
+## 🔌 Cấu hình backend (yêu cầu)
+Ứng dụng frontend kết nối tới API backend tại:
+http://192.168.0.102:8000/api
+Hoặc nếu bạn test cục bộ, đổi trong file:
+src/services/axiosClient.js
+```js
+ baseURL: "http://localhost:8000/api"
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
