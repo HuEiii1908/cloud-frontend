@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Download, Trash2, Edit3, Eye } from "lucide-react";
+import { formatFileSize } from "../../utils/formatFileSize";
 
 export default function FileItem({
   file,
@@ -11,7 +12,7 @@ export default function FileItem({
   const [hover, setHover] = useState(false);
 
   const handleDelete = () => {
-    if (typeof onDelete === "function") onDelete(file.id);
+    if (typeof onDelete === "function") onDelete(file.key || file.id);
   };
 
   const handleRename = () => {
@@ -33,10 +34,10 @@ export default function FileItem({
       className="relative group bg-white dark:bg-[#2b2b2b] border border-gray-200 dark:border-transparent hover:border-blue-400 dark:hover:border-gray-600 rounded-lg p-4 cursor-pointer transition-all duration-200"
     >
       <div className="truncate font-medium text-gray-800 dark:text-gray-100 mb-2">
-        {file.name}
+        {file.name || file.key}
       </div>
       <div className="text-sm text-gray-500 dark:text-gray-400">
-        {file.size ? (file.size / 1024).toFixed(1) : 0} KB
+        {formatFileSize(file.size || 0)}
       </div>
 
       {hover && (

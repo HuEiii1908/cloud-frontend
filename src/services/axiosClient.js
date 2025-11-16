@@ -4,7 +4,7 @@ import storageService from "./storage.service";
 import toast from "react-hot-toast";
 
 const axiosClient = axios.create({
-  baseURL: "http://192.168.0.102:8000/api",
+  baseURL: process.env.REACT_APP_API_URL || "http://192.168.0.102:8000/api",
   headers: { },
 });
 

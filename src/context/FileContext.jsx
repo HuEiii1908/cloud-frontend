@@ -9,6 +9,7 @@ export default function FileProvider({ children }) {
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [currentPath, setCurrentPath] = useState("");
 
   // ================== Load bucket ==================
   const loadBucket = async () => {
@@ -24,12 +25,12 @@ export default function FileProvider({ children }) {
   };
 
   // ================== Fetch files ==================
-  const fetchFiles = async () => {
+  const fetchFiles = async (path = "") => {
     if (!bucket) return;
 
     setLoading(true);
     try {
-      const res = await fileAPI.list(bucket); // ✔ CHUẨN
+      const res = await fileAPI.list(bucket, path); // Pass path parameter
       setFiles(res.data || []);
     } catch (err) {
       console.error(err);
@@ -39,10 +40,18 @@ export default function FileProvider({ children }) {
   };
 
   // ================== Upload file ==================
-  const uploadFile = async (file) => {
+  const uploadFile = async (files) => {
     if (!bucket) return console.warn("Bucket chưa load – uploadFile bị bỏ qua");
 
-    await fileAPI.uploadFile(bucket, file);   // ✔ SỬA ĐÚNG TÊN
+    if (Array.isArray(files)) {
+      // Handle multiple files
+      for (const file of files) {
+        await fileAPI.uploadFile(bucket, file);
+      }
+    } else {
+      // Handle single file
+      await fileAPI.uploadFile(bucket, files);
+    }
     await fetchFiles();
   };
 
@@ -76,14 +85,67 @@ export default function FileProvider({ children }) {
     await fetchFiles();
   };
 
+  // ================== Navigation functions ==================
+  const navigateToFolder = async (folderName) => {
+    const newPath = currentPath ? `${currentPath}/${folderName}` : folderName;
+    setCurrentPath(newPath);
+    await fetchFiles(newPath);
+  };
+
+  const navigateToPath = async (path) => {
+    setCurrentPath(path);
+    await fetchFiles(path);
+  };
+
+  const goBack = async () => {
+    const pathSegments = currentPath.split('/').filter(Boolean);
+    pathSegments.pop();
+    const newPath = pathSegments.join('/');
+    setCurrentPath(newPath);
+    await fetchFiles(newPath);
+  };
+
+  const goToRoot = async () => {
+    setCurrentPath("");
+    await fetchFiles("");
+  };
+
   // ================== INIT ==================
   useEffect(() => {
     loadBucket();
   }, []);
 
   useEffect(() => {
-    if (bucket) fetchFiles();
-  }, [bucket]);
+    if (bucket) fetchFiles(currentPath);
+  }, [bucket, currentPath]);
+
+  // ================== Trash functions ==================
+  const [trash, setTrash] = useState([]);
+
+  const moveToTrash = async (key) => {
+    if (!bucket) return;
+    // In a real implementation, this would call an API to move to trash
+    // For now, we'll just remove from files and add to trash
+    const fileToTrash = files.find(f => f.key === key);
+    if (fileToTrash) {
+      setFiles(prev => prev.filter(f => f.key !== key));
+      setTrash(prev => [...prev, { ...fileToTrash, deletedAt: new Date() }]);
+    }
+  };
+
+  const restoreFile = async (key) => {
+    const fileToRestore = trash.find(f => f.key === key);
+    if (fileToRestore) {
+      setTrash(prev => prev.filter(f => f.key !== key));
+      setFiles(prev => [...prev, fileToRestore]);
+    }
+  };
+
+  const deleteForever = async (key) => {
+    if (!bucket) return;
+    await fileAPI.delete(bucket, key);
+    setTrash(prev => prev.filter(f => f.key !== key));
+  };
 
   return (
     <FileContext.Provider
@@ -92,12 +154,20 @@ export default function FileProvider({ children }) {
         files,
         loading,
         error,
+        trash,
+        currentPath,
         fetchFiles,
         uploadFile,
         uploadFolder,
         createFolder,
-        deleteFile,
+        deleteFile: moveToTrash, // Override deleteFile to use trash
         renameFile,
+        restoreFile,
+        deleteForever,
+        navigateToFolder,
+        navigateToPath,
+        goBack,
+        goToRoot,
       }}
     >
       {children}

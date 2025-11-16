@@ -2,12 +2,7 @@ import axiosClient from "../services/axiosClient";
 
 const authAPI = {
   register: (data) =>
-  axiosClient.post("/auth/register/", data).then((res) => {
-    if (!res.success) {
-      throw new Error(res.message);
-    }
-    return res;
-  }),
+    axiosClient.post("/auth/register/", data),
 
   login: (data) =>
     axiosClient.post("/auth/login/", {

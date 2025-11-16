@@ -1,8 +1,7 @@
-import fileAPI from "../api/file.api";
-import useFile from "./useFile";
+import { useFile } from "./useFile";
 
 export default function useUpload() {
-  const { currentPath, bucket, addFiles } = useFile();
+  const { bucket, uploadFile, uploadFolder } = useFile();
 
   const upload = async (fileList) => {
     if (!bucket) {
@@ -12,14 +11,16 @@ export default function useUpload() {
 
     const files = Array.from(fileList || []);
 
-    const results = await Promise.all(
-      files.map((f) => fileAPI.upload(bucket, f, currentPath))
-    );
+    // Check if it's a folder upload
+    const isFolderUpload = files.some((f) => f.webkitRelativePath && f.webkitRelativePath !== "");
 
-    // Thêm kết quả trả về từ API vào danh sách file
-    addFiles(results.map((r) => r.data));
+    if (isFolderUpload) {
+      await uploadFolder(files);
+    } else {
+      await uploadFile(files);
+    }
 
-    return results;
+    return { success: true };
   };
 
   return { upload };

@@ -1,5 +1,4 @@
-// formatDate.js
-export const formatDate = (dateStr) => {
+const formatDate = (dateStr) => {
   const date = new Date(dateStr);
   return date.toLocaleDateString("vi-VN", {
     day: "2-digit",
@@ -7,3 +6,5 @@ export const formatDate = (dateStr) => {
     year: "numeric",
   });
 };
+
+export default formatDate;

@@ -8,7 +8,7 @@ export default function Storage() {
 
   useEffect(() => {
     fetchFiles();
-  }, []);
+  }, [fetchFiles]);
 
   const total = 15 * 1024 * 1024 * 1024; // 15GB
   const used = files.reduce((s, f) => s + (f.size || 0), 0);
